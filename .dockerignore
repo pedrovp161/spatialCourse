@@ -1,0 +1,9 @@
+data/
+output/
+outputIntegrated/
+intData/
+*.h5ad
+__pycache__/
+*.pyc
+.venv/
+.git/

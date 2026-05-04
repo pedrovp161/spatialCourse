@@ -4,3 +4,6 @@
 /output
 /singleSpatial
 /src/datasrc/data/anndata/visium_hne_adata.h5ad
+/outputIntegrated
+/.venv
+/.conda
