@@ -1,33 +1,26 @@
 FROM condaforge/mambaforge:latest
 
-# Evita prompts interativos
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Dependências do sistema
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libhdf5-dev \
-    libgl1 \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Diretório de trabalho
 WORKDIR /app
 
-# Copiar environment.yml
+# Copiar e criar ambiente primeiro (cache de layer)
 COPY environment.yml .
+RUN mamba env create -f environment.yml \
+    && mamba clean --all -f -y
 
-# Criar ambiente (IMPORTANTE)
-RUN mamba env create -f environment.yml
-
-# Ativar ambiente automaticamente
+# Ativar ambiente
 ENV PATH=/opt/conda/envs/scviInt/bin:$PATH
 
-# Copiar projeto
+# Instalar libs gráficas via conda (substitui libgl1/libglib2.0)
+RUN mamba install -n scviInt -y \
+    -c conda-forge \
+    libgl \
+    libglib \
+    && mamba clean --all -f -y
+
+# Copiar projeto por último
 COPY . .
 
-# Porta do Jupyter
 EXPOSE 8888
-
-# Comando padrão
-CMD ["bash"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--no-browser", "--allow-root"]
