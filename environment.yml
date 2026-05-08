@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
+  - jupyterlab
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=5.1=1_gnu
   - asttokens=3.0.0=py39h06a4308_0
