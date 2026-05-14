@@ -25,14 +25,12 @@ docker
 
 sudo usermod -aG docker $USER
 
-docker pull pedrovp161/spatialcourse:latest
+docker pull pedrovp161/spatialcourse:latest_
 
-docker run -it --rm \
+docker run -it \
   -p 8888:8888 \
   -v data:/app \
-  -v output:/app \
-  -v outputIntegrated:/app \
-  pedrovp161/spatialcourse:latest \
+  pedrovp161/spatialcourse:latest_ \
   jupyter lab --ip=0.0.0.0 --no-browser --allow-root \
   --NotebookApp.password='argon2:$argon2id$v=19$m=10240,t=10,p=8$pFDgyvULpLaVEs092bn+xA$n8IW8opDz1MTnKOWYYyXzLkYwJWa6D3gbyekxrFkp98' \
   --NotebookApp.token=''

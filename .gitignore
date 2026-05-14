@@ -7,3 +7,4 @@
 /outputIntegrated
 /.venv
 /.conda
+*/ray
