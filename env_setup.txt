@@ -1,3 +1,4 @@
+### install
 mkdir spatialCourse
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -21,9 +22,17 @@ sudo apt-get update
 
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+### install
+
+### setup
+
 docker
 
 sudo usermod -aG docker $USER
+
+### setup
+
+### pull
 
 docker pull pedrovp161/spatialcourse:latest_
 
@@ -33,3 +42,5 @@ docker run -it \
   jupyter lab --ip=0.0.0.0 --no-browser --allow-root \
   --NotebookApp.password='argon2:$argon2id$v=19$m=10240,t=10,p=8$pFDgyvULpLaVEs092bn+xA$n8IW8opDz1MTnKOWYYyXzLkYwJWa6D3gbyekxrFkp98' \
   --NotebookApp.token=''
+
+### pull
