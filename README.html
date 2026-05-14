@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spatial Transcriptomics Analysis Course</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1117;
+    --surface2: #111820;
+    --border: #1e2d3d;
+    --accent: #00e5a0;
+    --accent2: #0af;
+    --accent3: #c77dff;
+    --text: #cdd9e5;
+    --text-dim: #6b7f93;
+    --text-bright: #f0f6fc;
+    --red: #ff6b6b;
+    --yellow: #ffd166;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 72px 0 56px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.25);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 900;
+    line-height: 1.08;
+    color: var(--text-bright);
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 580px;
+    line-height: 1.65;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-sub strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 28px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
+
+  .pill-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-top: 56px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+
+  p { margin-bottom: 12px; color: var(--text); }
+
+  /* ── GRID ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card {
+    background: var(--surface);
+    padding: 24px;
+    transition: background 0.2s;
+  }
+
+  .card:hover { background: var(--surface2); }
+
+  .card-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .card-title {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+
+  .card-body {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── MODULE LIST ── */
+  .module-list {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .module {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .module:last-child { border-bottom: none; }
+  .module:hover { background: var(--surface2); }
+
+  .module-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .module-content {
+    padding: 18px 20px;
+  }
+
+  .module-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+
+  .module-desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .tag-green { background: rgba(0,229,160,0.1); color: var(--accent); }
+  .tag-blue  { background: rgba(0,170,255,0.1); color: var(--accent2); }
+  .tag-purple{ background: rgba(199,125,255,0.1); color: var(--accent3); }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .pipeline-step:last-child { border-bottom: none; }
+  .pipeline-step:hover { background: var(--surface2); }
+
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+
+  .pipeline-step.active .step-num {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,160,0.08);
+  }
+
+  .step-arrow {
+    position: absolute;
+    left: 33px;
+    bottom: -10px;
+    width: 1.5px;
+    height: 10px;
+    background: var(--border);
+    z-index: 1;
+  }
+
+  .pipeline-step:last-child .step-arrow { display: none; }
+
+  .step-text {
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .step-detail {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .code-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  pre {
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .kw { color: var(--accent3); }
+  .cm { color: #4d6b7a; font-style: italic; }
+  .st { color: var(--yellow); }
+  .fn { color: var(--accent2); }
+  .fl { color: var(--accent); }
+
+  /* ── DOCKER ── */
+  .docker-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .docker-step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .docker-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .docker-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+  }
+
+  /* ── OUTCOME ── */
+  .outcome-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .outcome-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--text);
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .outcome-item:hover {
+    border-color: rgba(0,229,160,0.3);
+    background: var(--surface2);
+  }
+
+  .outcome-check {
+    color: var(--accent);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── AUDIENCE ── */
+  .audience-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .audience-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .audience-card:hover {
+    border-color: rgba(0,170,255,0.35);
+    transform: translateY(-2px);
+  }
+
+  .audience-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+  .audience-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+
+  /* ── SPATOOLS ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 12.5px;
+    color: var(--text);
+    transition: border-color 0.15s;
+  }
+
+  .feature-item:hover { border-color: rgba(0,229,160,0.25); }
+
+  .feature-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: rgba(0,229,160,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    background: rgba(0,229,160,0.05);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 10px;
+    margin-top: 16px;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.05);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--accent2);
+  }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .audience-grid, .features-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-tag">🧬 v2025 · Bioinformatics</div>
+    <h1>Spatial<br><em>Transcriptomics</em><br>Analysis</h1>
+    <p class="hero-sub">
+      A practical, method-driven course for <strong>robust spatial transcriptomics analysis</strong>
+      using AnnData, MAD-based preprocessing, and advanced spatial methods.
+    </p>
+    <div class="hero-pills">
+      <div class="pill"><div class="pill-dot"></div>AnnData</div>
+      <div class="pill"><div class="pill-dot"></div>MAD Filtering</div>
+      <div class="pill"><div class="pill-dot"></div>Clustering</div>
+      <div class="pill"><div class="pill-dot"></div>Colocalization</div>
+      <div class="pill"><div class="pill-dot"></div>spatools</div>
+      <div class="pill"><div class="pill-dot"></div>Docker</div>
+    </div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <section>
+    <div class="section-label">01 · Overview</div>
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-icon">📐</span>
+        <div class="card-title">Robust Statistics</div>
+        <div class="card-body">MAD-based filtering and outlier detection for reliable, reproducible QC pipelines.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">⚙️</span>
+        <div class="card-title">Automated Preprocessing</div>
+        <div class="card-body">End-to-end pipelines from raw data to analysis-ready objects with minimal manual steps.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🔁</span>
+        <div class="card-title">Reproducible Workflows</div>
+        <div class="card-body">Containerized environments and structured pipelines that produce consistent results.</div>
+      </div>
+      <div class="card">
+        <span class="card-icon">🛠️</span>
+        <div class="card-title">Custom Tooling</div>
+        <div class="card-body">Built around <code>spatools</code>, a Python package developed for this full spatial workflow.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CURRICULUM -->
+  <section>
+    <div class="section-label">02 · Curriculum</div>
+    <h2>What You Will Learn</h2>
+    <div class="module-list">
+      <div class="module">
+        <div class="module-num">01</div>
+        <div class="module-content">
+          <div class="module-title">Data Structures <span class="tag tag-blue">Foundation</span></div>
+          <div class="module-desc">Working with <code>AnnData</code>, managing spatial metadata and layers, structuring complex multi-sample datasets for downstream analysis.</div>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">02</div>
+        <div class="module-content">
+          <div class="module-title">Preprocessing — Robust by Design <span class="tag tag-green">Core</span></div>
+          <div class="module-desc">Outlier detection via Median Absolute Deviation (MAD), automated QC pipelines, tissue-aware filtering, off-tissue spot removal, and gene renaming with safe ID fallback.</div>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">03</div>
+        <div class="module-content">
+          <div class="module-title">Clustering Strategy <span class="tag tag-green">Core</span></div>
+          <div class="module-desc">Resolution selection via the silhouette method, structural heuristics for stable clustering, and principled interpretation of cluster results.</div>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">04</div>
+        <div class="module-content">
+          <div class="module-title">Data Integration <span class="tag tag-purple">Advanced</span></div>
+          <div class="module-desc">Multi-sample integration, batch correction strategies, and cross-slide harmonization for cohort-level analysis.</div>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-num">05</div>
+        <div class="module-content">
+          <div class="module-title">Spatial Analysis <span class="tag tag-purple">Advanced</span></div>
+          <div class="module-desc">Spatial visualization across multiple slides, QC plots, interactive region selection, and colocalization analysis using a custom method.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section>
+    <div class="section-label">03 · Pipeline</div>
+    <h2>Full Workflow</h2>
+    <div class="pipeline">
+      <div class="pipeline-step active">
+        <div class="step-num">1</div>
+        <div class="step-text">Raw Data Input</div>
+        <div class="step-detail">Visium / Xenium</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step active">
+        <div class="step-num">2</div>
+        <div class="step-text">Quality Control</div>
+        <div class="step-detail">per-spot metrics</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step active">
+        <div class="step-num">3</div>
+        <div class="step-text">MAD-Based Filtering</div>
+        <div class="step-detail">robust outlier removal</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">4</div>
+        <div class="step-text">Off-Tissue Spot Removal</div>
+        <div class="step-detail">tissue-aware</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">5</div>
+        <div class="step-text">Normalization</div>
+        <div class="step-detail">scran / CPM</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">6</div>
+        <div class="step-text">Multi-Sample Integration</div>
+        <div class="step-detail">batch correction</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">7</div>
+        <div class="step-text">Clustering</div>
+        <div class="step-detail">silhouette-guided</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">8</div>
+        <div class="step-text">Spatial Analysis</div>
+        <div class="step-detail">colocalization</div>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">9</div>
+        <div class="step-text">Biological Insights</div>
+        <div class="step-detail">↳ interpretation</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPATOOLS -->
+  <section>
+    <div class="section-label">04 · Tooling</div>
+    <h2>Core Package: <code>spatools</code></h2>
+    <p style="color:var(--text-dim); margin-bottom:16px;">A custom Python package developed to support the full spatial analysis workflow, from raw ingestion to biological interpretation.</p>
+    <div class="features-grid">
+      <div class="feature-item"><div class="feature-icon">📊</div>MAD-based automated preprocessing</div>
+      <div class="feature-item"><div class="feature-icon">🧫</div>Off-tissue spot removal</div>
+      <div class="feature-item"><div class="feature-icon">🗺️</div>Spatial plotting utilities</div>
+      <div class="feature-item"><div class="feature-icon">🔲</div>Multi-slide visualization</div>
+      <div class="feature-item"><div class="feature-icon">🔤</div>Gene ID → name conversion (with fallback)</div>
+      <div class="feature-item"><div class="feature-icon">🖱️</div>Interactive region selection tools</div>
+      <div class="feature-item"><div class="feature-icon">🔗</div>Colocalization analysis framework</div>
+      <div class="feature-item"><div class="feature-icon">📦</div>AnnData-native API design</div>
+    </div>
+  </section>
+
+  <!-- DOCKER -->
+  <section>
+    <div class="section-label">05 · Environment</div>
+    <h2>Running with Docker 🐳</h2>
+    <p style="color:var(--text-dim); margin-bottom:20px;">Start a JupyterLab instance with the full environment preconfigured — no dependency headaches.</p>
+
+    <div class="docker-steps">
+      <div class="docker-step">
+        <div class="docker-num">1</div>
+        <div>
+          <div class="docker-label">Pull the image</div>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <div class="code-dot" style="background:#ff6b6b"></div>
+                <div class="code-dot" style="background:#ffd166"></div>
+                <div class="code-dot" style="background:#00e5a0"></div>
+              </div>
+              <div class="code-label">shell</div>
+            </div>
+            <pre><span class="fl">docker</span> pull pedrovp161/spatialcourse:<span class="st">latest</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="docker-step">
+        <div class="docker-num">2</div>
+        <div>
+          <div class="docker-label">Run the container</div>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <div class="code-dot" style="background:#ff6b6b"></div>
+                <div class="code-dot" style="background:#ffd166"></div>
+                <div class="code-dot" style="background:#00e5a0"></div>
+              </div>
+              <div class="code-label">shell</div>
+            </div>
+            <pre><span class="fl">docker</span> run -it \
+  -p <span class="st">8888</span>:<span class="st">8888</span> \
+  pedrovp161/spatialcourse:<span class="st">latest</span> \
+  <span class="fn">jupyter lab</span> \
+    --ip=<span class="st">0.0.0.0</span> \
+    --no-browser \
+    --allow-root \
+    --NotebookApp.token=<span class="st">''</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="docker-step">
+        <div class="docker-num">3</div>
+        <div>
+          <div class="docker-label">Open in your browser</div>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots">
+                <div class="code-dot" style="background:#ff6b6b"></div>
+                <div class="code-dot" style="background:#ffd166"></div>
+                <div class="code-dot" style="background:#00e5a0"></div>
+              </div>
+              <div class="code-label">url</div>
+            </div>
+            <pre><span class="fn">http</span>://<span class="st">localhost</span>:<span class="fl">8888</span></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTCOMES -->
+  <section>
+    <div class="section-label">06 · Outcomes</div>
+    <h2>By the End of This Course</h2>
+    <div class="outcome-list">
+      <div class="outcome-item"><span class="outcome-check">✦</span>Build a complete, production-ready spatial transcriptomics pipeline from scratch</div>
+      <div class="outcome-item"><span class="outcome-check">✦</span>Apply MAD-based preprocessing effectively and understand when to customize thresholds</div>
+      <div class="outcome-item"><span class="outcome-check">✦</span>Select clustering resolutions in a principled, data-driven way using the silhouette method</div>
+      <div class="outcome-item"><span class="outcome-check">✦</span>Perform advanced spatial analyses including colocalization and interactive region selection</div>
+      <div class="outcome-item"><span class="outcome-check">✦</span>Extend <code>spatools</code> and develop your own spatial analysis tools</div>
+    </div>
+  </section>
+
+  <!-- AUDIENCE -->
+  <section>
+    <div class="section-label">07 · Audience</div>
+    <h2>Who Is This For?</h2>
+    <div class="audience-grid">
+      <div class="audience-card">
+        <span class="audience-icon">🧬</span>
+        <div class="audience-title">Computational Biologists</div>
+      </div>
+      <div class="audience-card">
+        <span class="audience-icon">💻</span>
+        <div class="audience-title">Bioinformaticians</div>
+      </div>
+      <div class="audience-card">
+        <span class="audience-icon">📊</span>
+        <div class="audience-title">Omics Data Scientists</div>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="callout-icon">💡</span>
+      <span>Familiarity with Python and basic single-cell concepts is recommended. No prior spatial transcriptomics experience required.</span>
+    </div>
+  </section>
+
+  <footer>
+    <span>Spatial Transcriptomics Course · 2025</span>
+    <span>spatools · AnnData · JupyterLab · Docker</span>
+  </footer>
+
+</div>
+</body>
+</html>
